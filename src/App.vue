@@ -1,17 +1,36 @@
 <template>
   <div id="app">
-    <img alt="Vue logo" src="./assets/logo.png">
-    <HelloWorld msg="Welcome to Your Vue.js App"/>
+    <state-control v-for="state in states"
+      :key="state.name"
+      :state="state.name"
+      :electoral="state.electoral"
+      :pop="state.pop" />
   </div>
 </template>
 
 <script>
-import HelloWorld from './components/HelloWorld.vue'
+import StateControl from './components/StateControl.vue'
 
 export default {
   name: 'app',
   components: {
-    HelloWorld
+    StateControl
+  },
+  data () {
+    return {
+      states: [
+        {
+          name: 'CA',
+          pop: 12,
+          electoral: 4,
+        },
+        {
+          name: 'IL',
+          pop: 23,
+          electoral: 8,
+        }
+      ]
+    };
   }
 }
 </script>
@@ -24,5 +43,8 @@ export default {
   text-align: center;
   color: #2c3e50;
   margin-top: 60px;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-evenly;
 }
 </style>
