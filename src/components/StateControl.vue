@@ -16,7 +16,9 @@ export default {
   },
   computed: {
     votes () {
-      return Math.floor(this.percent * this.pop + 0.5);
+      const votes = Math.floor(this.percent * this.pop + 0.5);
+      this.$emit('votes', this.state, votes);
+      return votes;
     },
   },
   data () {
