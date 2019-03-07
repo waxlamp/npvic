@@ -17,6 +17,9 @@
     <div>
       NPVIC: {{ npvic }}
     </div>
+    <div>
+      Per-state: {{ tally }}
+    </div>
   </div>
 </template>
 
@@ -24,6 +27,29 @@
 import StateControl from './components/StateControl.vue'
 
 const sum = (acc, x) => acc + x;
+
+function computeVotes (state, totalVotes, totalPop) {
+  let votes;
+
+  switch(state.mode) {
+  case 'wta':
+    votes = state.votes > 0.5 * state.pop ? state.electoral : 0;
+    break;
+
+  case 'prop':
+    votes = Math.floor((state.votes / state.pop) * state.electoral);
+    break;
+
+  case 'npvic':
+    votes = totalVotes / totalPop > 0.5 ? state.electoral : 0;
+    break;
+
+  default:
+    throw new Error(`impossible tally mode: ${state.mode}`);
+  }
+
+  return votes;
+}
 
 export default {
   name: 'app',
@@ -54,10 +80,24 @@ export default {
         .map(s => votes / all > 0.5 ? s.electoral : 0)
         .reduce(sum);
     },
+    tally () {
+      const votes = Object.values(this.states)
+        .map(s => s.votes)
+        .reduce(sum);
+
+      const all = Object.values(this.states)
+        .map(s => s.pop)
+        .reduce(sum);
+
+      return Object.values(this.states)
+        .map(s => computeVotes(s, votes, all))
+        .reduce(sum);
+    },
   },
   methods: {
-    updateResult (which, votes) {
+    updateResult (which, votes, mode) {
       this.states[which].votes = votes;
+      this.states[which].mode = mode;
     }
   },
   data () {
@@ -68,12 +108,14 @@ export default {
           pop: 12,
           electoral: 4,
           votes: 0,
+          mode: 'wta',
         },
         IL: {
           name: 'IL',
           pop: 23,
           electoral: 8,
           votes: 0,
+          mode: 'wta',
         }
       },
       // votes: {
